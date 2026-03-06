@@ -24,11 +24,29 @@ const observer = new IntersectionObserver((entries) => {
 document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
 // Form
-document.getElementById('contactForm').addEventListener('submit', (e) => {
+document.getElementById('contactForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = e.target.querySelector('button');
-    btn.textContent = 'Message Sent!';
-    btn.style.background = '#059669';
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+    try {
+        const res = await fetch(e.target.action, {
+            method: 'POST',
+            body: new FormData(e.target),
+            headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+            btn.textContent = 'Message Sent!';
+            btn.style.background = '#059669';
+            e.target.reset();
+        } else {
+            btn.textContent = 'Something went wrong';
+            btn.style.background = '#dc2626';
+        }
+    } catch {
+        btn.textContent = 'Something went wrong';
+        btn.style.background = '#dc2626';
+    }
+    btn.disabled = false;
     setTimeout(() => { btn.textContent = 'Send Message'; btn.style.background = ''; }, 3000);
-    e.target.reset();
 });
